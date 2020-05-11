@@ -41,6 +41,7 @@ var (
 	password   string
 	name       string
 	bundle     string
+	product	   string
 	noauto     bool
 	log        bool
 	id         string
@@ -68,6 +69,7 @@ const (
 	dname       = "name of the node to add"
 	dbundle     = "name of the enrollment bundle"
 	dauto       = "indicates the node should NOT be auto-approved on enrollment"
+	dproduct    = "indicates the product name of the node to be enrolled"
 	did         = "the identifier for a node - find with the list command"
 	dsmartgroup = "the name of a smartgroup to filter the command"
 	dlog        = "enable request logging to stdout"
@@ -112,6 +114,7 @@ func init() {
 	flag.StringVar(&id, "i", "", did)
 	flag.StringVar(&smartgroup, "g", "", dsmartgroup)
 	flag.BoolVar(&noauto, "no", false, dauto)
+	flag.StringVar(&product, "product", "opengear", dproduct)
 	flag.BoolVar(&enabled, "enabled", false, denabled)
 	flag.StringVar(&address, "a", "", daddress)
 	flag.StringVar(&username, "u", "root", dusername)
@@ -139,6 +142,7 @@ func usage() string {
 	sbuff.WriteString(fmt.Sprintf("\t\t-p: %s\n", dpassword))
 	sbuff.WriteString(fmt.Sprintf("\t\t-n: %s\n", dname))
 	sbuff.WriteString(fmt.Sprintf("\t\t-no: %s\n", dauto))
+	sbuff.WriteString(fmt.Sprintf("\t\t-product: %s\n", dproduct))
 
 	// list
 	sbuff.WriteString("\tlist: list all nodes on the Lighthouse\n")
@@ -244,7 +248,7 @@ func runCommand(command string) (string, error) {
 		if err := loadConfiguration(); err != nil {
 			return msg, err
 		}
-		msg, err := addNode(address, username, password, name, bundle, noauto)
+		msg, err := addNode(address, username, password, name, bundle, noauto, product)
 		if err != nil {
 			return msg, err
 		}
@@ -911,7 +915,7 @@ func setWebuiTimeout(newTimeout int) (string, error) {
 // addNode makes a POST request to the lighthouse including all of the new
 // node information. This formats any error/response message to be friendly for
 // the user.
-func addNode(address, username, password, name, bundle string, approve bool) (string, error) {
+func addNode(address, username, password, name, bundle string, approve bool, product string) (string, error) {
 	var ret string
 
 	// Build the request body.
@@ -922,6 +926,7 @@ func addNode(address, username, password, name, bundle string, approve bool) (st
 		Password:    password,
 		AutoApprove: !approve, // user specifies if they dont want it
 		CallHome:    false,
+		Product:     product,
 	}
 	if bundle != "" {
 		enrolBody.Bundle = bundle

@@ -212,6 +212,7 @@ type NodeEnrollmentBody struct {
 	Hostname    string `json:"hostname,omitempty"`
 	AutoApprove bool   `json:"auto_approve"`
 	CallHome    bool   `json:"call_home"`
+	Product	    string `json:"product"`
 }
 
 // EnrollmentRequest is the response body returned from the API.
